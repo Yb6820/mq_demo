@@ -12,7 +12,7 @@ func FailOnError(err error, msg string) {
 	}
 }
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://youbet:181234@localhost:5672/guest")
 	FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -26,7 +26,7 @@ func main() {
 		"hello", //消息队列的名称
 		false,   //是否持久化
 		false,   //是否自动删除
-		false,   //是否具有排他性
+		false,   //是否具有排他性(仅创建它的程序才可用)
 		false,   //是否阻塞处理
 		nil,     //额外的属性
 	)
