@@ -17,11 +17,11 @@ func main() {
 	defer conn.Close()
 
 	//定义队列的名称
-	queueNames := []string{"direct_Queue1", "direct_Queue2", "direct_Queue3", "direct_Queue4"}
+	queueNames := []string{"topic_Queue1", "topic_Queue2", "topic_Queue3", "topic_Queue4"}
 
-	//获取一个通道
+	//申请通道
 	ch, err := conn.Channel()
-	FailOnError(err, "Failed to Create a channel")
+	FailOnError(err, "Failed to Open a Channel")
 	defer ch.Close()
 
 	//消费消息

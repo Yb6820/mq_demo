@@ -16,9 +16,11 @@ func main() {
 	FailOnError(err, "Failed to Connected to RabbitMQ")
 	defer conn.Close()
 	//定义交换机的名称
-	exchangeNames := []string{"direct_exchange1", "direct_exchange3", "direct_exchange4"}
+	exchangeName := "Direct_Exchange"
 	//定义队列的名称
 	queueNames := []string{"direct_Queue1", "direct_Queue2", "direct_Queue3", "direct_Queue4"}
+	//定义Key值
+	keys := []string{"key_1", "key_3", "key_4"}
 
 	//申请通道
 	ch, err := conn.Channel()
@@ -34,9 +36,9 @@ func main() {
 	q4, err := ch.QueueDeclare(queueNames[3], true, false, false, false, nil)
 	FailOnError(err, "Failed to Create a Queue")
 
-	//声明交换机
+	//声明交换机类型
 	err = ch.ExchangeDeclare(
-		exchangeNames[0], //交换机的名称
+		exchangeName, //交换机的名称
 		//交换机的类型，分为：direct(直连),fanout(扇出,类似广播),topic(话题,与direct相似但是模式匹配),headers(用header来设置生产和消费的key)
 		"direct",
 		true,  //是否持久化
@@ -47,44 +49,37 @@ func main() {
 	)
 	FailOnError(err, "Failed to Declare a Exchange")
 
-	err = ch.ExchangeDeclare(exchangeNames[1], "direct", true, false, false, false, nil)
-	FailOnError(err, "Failed to Declare a Exchange")
-
-	err = ch.ExchangeDeclare(exchangeNames[2], "direct", true, false, false, false, nil)
-	FailOnError(err, "Failed to Declare a Exchange")
-
-	//根据key将队列与交换机绑定
-	ch.QueueBind(q1.Name, q1.Name, exchangeNames[0], false, nil)
-	ch.QueueBind(q2.Name, q1.Name, exchangeNames[0], false, nil)
-	ch.QueueBind(q3.Name, q3.Name, exchangeNames[1], false, nil)
-	ch.QueueBind(q4.Name, q4.Name, exchangeNames[2], false, nil)
+	//根据key将队列与keys绑定
+	ch.QueueBind(q1.Name, keys[0], exchangeName, false, nil)
+	ch.QueueBind(q2.Name, keys[0], exchangeName, false, nil)
+	ch.QueueBind(q3.Name, keys[1], exchangeName, false, nil)
+	ch.QueueBind(q4.Name, keys[2], exchangeName, false, nil)
 
 	//发送消息
-	body := "Hello DirectExchange"
-	err = ch.Publish(exchangeNames[0], q1.Name, false, false,
+	err = ch.Publish(exchangeName, keys[0], false, false,
 		amqp.Publishing{
 			Type: "text/plain",
-			Body: []byte(body + "1"),
+			Body: []byte("Hello Dierct key1 message"),
 		},
 	)
-	log.Printf(" [x] Sent to %s : %s", exchangeNames[0], body+"1")
+	log.Printf(" [x] Sent to %s : %s", exchangeName, "Hello Dierct key1 message")
 	FailOnError(err, "Failed to publish a message")
 
-	err = ch.Publish(exchangeNames[1], q3.Name, false, false,
+	err = ch.Publish(exchangeName, keys[1], false, false,
 		amqp.Publishing{
 			Type: "text/plain",
-			Body: []byte(body + "3"),
+			Body: []byte("Hello Dierct key3 message"),
 		},
 	)
-	log.Printf(" [x] Sent to %s : %s", exchangeNames[1], body+"3")
+	log.Printf(" [x] Sent to %s : %s", exchangeName, "Hello Dierct key3 message")
 	FailOnError(err, "Failed to publish a message")
 
-	err = ch.Publish(exchangeNames[2], q4.Name, false, false,
+	err = ch.Publish(exchangeName, keys[2], false, false,
 		amqp.Publishing{
 			Type: "text/plain",
-			Body: []byte(body + "4"),
+			Body: []byte("Hello Dierct key4 message"),
 		},
 	)
-	log.Printf(" [x] Sent to %s : %s", exchangeNames[2], body+"4")
+	log.Printf(" [x] Sent to %s : %s", exchangeName, "Hello Dierct key4 message")
 	FailOnError(err, "Failed to publish a message")
 }
